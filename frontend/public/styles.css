@@ -1,0 +1,290 @@
+:root {
+  --header-height: 160px;
+  --header-height-min: 80px;
+  --accent-color: #C5A992;
+  --dark-color: #2f2f2f;
+  --light-color: #F3F2EC;
+  --body-text-color: #757575;
+  --heading-font: "Prata", Georgia, serif;
+  --body-font: "Raleway", sans-serif;
+}
+
+@media screen and (max-width: 600px) {
+  :root {
+    --header-height: 100px;
+    --header-height-min: 80px;
+  }
+}
+
+body {
+  font-family: var(--body-font);
+  font-size: 16px;
+  line-height: 2;
+  color: var(--body-text-color);
+  background-color: var(--light-color);
+}
+
+a {
+  color: var(--accent-color);
+  text-decoration: none;
+  transition: all 0.3s ease-out;
+}
+
+a:hover {
+  color: #111;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--heading-font);
+  line-height: 1.2;
+  color: var(--dark-color);
+}
+
+h1, h2, h3 {
+  margin: 25px 0;
+  text-transform: capitalize;
+}
+
+h4, h5, h6 {
+  letter-spacing: 1px;
+}
+
+h1 {
+  font-size: 2.5em;
+  line-height: 1.4;
+}
+
+h2 {
+  font-size: 1.5em;
+  line-height: 1.4;
+}
+
+h3 {
+  font-size: 1.4em;
+  line-height: 1.4;
+}
+
+h4 {
+  font-size: 1.1em;
+  line-height: 1.4;
+}
+
+h5 {
+  font-size: .83em;
+  line-height: 1.25;
+}
+
+h6 {
+  font-size: .67em;
+  line-height: 1.1;
+}
+
+p {
+  margin: 0 0 20px 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  outline: 0;
+}
+
+img {
+  display: inline-block;
+  border: 0;
+  max-width: 100%;
+  height: auto;
+  vertical-align: middle;
+}
+
+.btn {
+  background: var(--accent-color);
+  color: #fff;
+  padding: 0.75em 1.5em;
+  border: 1px solid transparent;
+  border-radius: 0;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease-in;
+}
+
+.btn:hover {
+  background: #151515;
+  color: #fff;
+}
+
+.container, .container-fluid, .container-lg, .container-md, .container-sm, .container-xl, .container-xxl {
+  --bs-gutter-x: 2.5rem;
+}
+
+.display-1,
+.display-2,
+.display-3,
+.display-4,
+.display-5,
+.display-6 {
+  font-family: var(--heading-font);
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #212529;
+}
+
+a {
+  text-decoration: none;
+  transition: all 0.3s ease-out;
+}
+
+.accordion-button {
+  font-size: 1.2rem;
+  border-bottom: 1px solid #E0E0E0;
+}
+
+form-control:focus {
+  border-color: #ccc;
+  box-shadow: 0 0 0 0.25rem rgba(200, 200, 200, .25);
+}
+
+.button {
+  font-size: 1em;
+  font-weight: 600;
+  border: none;
+  height: 65px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.btn-submit {
+  background: #fff;
+  color: #2f2f2f;
+}
+
+.btn-submit:hover {
+  background-color: #c5a992;
+  color: #fff;
+}
+
+.image-hvr-effect {
+  display: flex;
+  overflow: hidden;
+}
+
+.image-hvr-effect img.post-image {
+  transform: scale(1);
+  will-change: transform;
+  transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  z-index: 0;
+}
+
+.image-hvr-effect:hover img.post-image {
+  transform: scale(1.1);
+}
+
+.page-title {
+  font-size: 4.5em;
+  margin-top: 2em;
+}
+
+@media screen and (max-width: 768px) {
+  .page-title {
+    font-size: 2.5em;
+    margin-top: 1em;
+  }
+}
+
+#billboard .main-slider {
+  padding: 80px 0;
+}
+
+.main-slider .slider-item {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+.main-slider .banner-content {
+  width: 35%;
+  margin-top: 60px;
+  margin-right: 175px;
+}
+
+.banner-content h2.banner-title {
+  font-size: 4.5em;
+  font-weight: 500;
+  color: #222;
+}
+
+.banner-content p {
+  margin: 0 0 30px 0;
+}
+
+#billboard button.slick-arrow {
+  background: transparent;
+  border: 1px solid #E5E3DA;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  z-index: 5;
+  cursor: pointer;
+}
+
+#billboard button.slick-arrow:hover {
+  border: 1px solid #74642F;
+  background-color: #E5E3DA;
+}
+
+#billboard button.prev.slick-arrow {
+  left: 110px;
+}
+
+#billboard button.next.slick-arrow {
+  right: 110px;
+}
+
+#billboard .slick-arrow i.icon {
+  color: #8C8C8C;
+}
+
+@media screen and (max-width: 999px) {
+  .banner-content h2.banner-title {
+    font-size: 3.5em;
+  }
+
+  #billboard .main-slider {
+    margin: 70px 0;
+    padding: 0;
+  }
+
+  .main-slider .slider-item {
+    flex-wrap: wrap;
+    text-align: center;
+    flex-direction: column-reverse;
+  }
+
+  .main-slider .banner-content {
+    width: 100%;
+    margin-top: 60px;
+    margin-right: 0;
+    margin-bottom: 80px;
+  }
+
+  #billboard .slick-dots {
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+  }
+}

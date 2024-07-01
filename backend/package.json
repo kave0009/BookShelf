@@ -1,20 +1,33 @@
 {
-  "name": "backend",
+  "name": "e-commerce-app",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "An online bookstore application",
+  "main": "server.mjs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "cross-env DATABASE_URL=postgresql://kave0009:%40Rtin1382@localhost:5432/ecommerce JWT_SECRET=mysecretkey node server.mjs",
+    "dev": "cross-env DATABASE_URL=postgresql://kave0009:%40Rtin1382@localhost:5432/ecommerce JWT_SECRET=mysecretkey nodemon server.mjs",
+    "build": "webpack --config webpack.config.js",
+    "serve": "webpack serve --config webpack.config.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Artin Kaveh",
+  "license": "MIT",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
-    "express": "^4.19.2",
-    "jsonwebtoken": "^9.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
     "pg": "^8.12.0",
-    "stripe": "^15.10.0"
+    "react-slick": "^0.28.1",
+    "slick-carousel": "^1.8.1",
+    "react": "^17.0.2",
+  "react-dom": "^17.0.2"
   },
-  "description": ""
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "dotenv-webpack": "^8.1.0",
+    "nodemon": "^2.0.12"
+  },
+  "type": "module"
 }

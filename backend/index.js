@@ -1,45 +1,47 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const authRoutes = require('./routes/auth');
-const productRoutes = require('./routes/products');
-const cartRoutes = require('./routes/cart');
-const checkoutRoutes = require('./routes/checkout');
-const pool = require('./db');
+import express from "express";
+import cors from "cors";
+import bodyParser from "body-parser";
+import dotenv from "dotenv";
+import authRoutes from "./routes/auth.mjs";
+import productRoutes from "./routes/products.mjs";
+import cartRoutes from "./routes/cart.mjs";
+import checkoutRoutes from "./routes/checkout.mjs";
+import booksRoutes from "./routes/books.mjs"; // Import the books route
+import { query } from "./db.mjs"; // Ensure you import the query function
+
+dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5003; // Changed to 5003
 
-// Middleware to parse JSON bodies
-app.use(bodyParser.json());
+app.use(cors());
+app.use(bodyParser.json({ limit: "50mb" }));
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
-// Use auth routes
-app.use('/api/auth', authRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/cart", cartRoutes);
+app.use("/api/checkout", checkoutRoutes);
+app.use("/api/books", booksRoutes); // Use the books route
 
-// Use product routes
-app.use('/api/products', productRoutes);
-
-// Use cart routes
-app.use('/api/cart', cartRoutes);
-
-// Use checkout routes
-app.use('/api/checkout', checkoutRoutes);
-
-// Test database connection
-app.get('/test-db', async (req, res) => {
+app.get("/test-db", async (req, res) => {
   try {
-    const result = await pool.query('SELECT NOW()');
+    const result = await query("SELECT NOW()");
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).send('Database connection error');
+    res.status(500).send("Database connection error");
   }
 });
 
-app.get('/', (req, res) => {
-  res.send('E-commerce backend is running');
+app.get("/", (req, res) => {
+  res.send("E-commerce backend is running");
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.listen(PORT, (err) => {
+  if (err) {
+    console.error("Failed to start server:", err);
+  } else {
+    console.log(`Server is running on port ${PORT}`);
+  }
 });
-
