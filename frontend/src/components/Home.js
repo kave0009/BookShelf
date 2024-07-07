@@ -82,16 +82,6 @@ const Home = ({ handleAddToCart, handleImageClick }) => {
       .filter((book) => book !== null);
   };
 
-  const checkImageExists = async (url, book) => {
-    try {
-      const response = await axios.get(url);
-      return response.status === 200;
-    } catch {
-      console.log(`Image fetch failed for book: ${book.title}`);
-      return false;
-    }
-  };
-
   const fetchFeaturedBooks = async () => {
     setLoading(true);
     try {
@@ -102,17 +92,7 @@ const Home = ({ handleAddToCart, handleImageClick }) => {
       const allBooks = await Promise.all(allBooksPromises);
       const flattenedBooks = allBooks.flat();
       const mergedBooks = mergeBookData(dbBooks, flattenedBooks);
-
-      const booksWithImages = [];
-      for (const book of mergedBooks) {
-        const imageUrl = `https://covers.openlibrary.org/b/id/${book.cover_id}-L.jpg`;
-        if (await checkImageExists(imageUrl, book)) {
-          booksWithImages.push(book);
-        }
-        if (booksWithImages.length === 4) break;
-      }
-
-      setFeaturedBooks(booksWithImages);
+      setFeaturedBooks(mergedBooks.slice(0, 4));
     } catch (error) {
       setError("Error fetching featured books");
       console.error(
@@ -161,82 +141,91 @@ const Home = ({ handleAddToCart, handleImageClick }) => {
                   gap: "20px",
                 }}
               >
-                {featuredBooks.map((book, index) => (
-                  <div
-                    key={book.id || `book-${index}`}
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      position: "relative",
-                    }}
-                  >
-                    <CustomTooltip title="Click for more details">
-                      <div
-                        className="product-item"
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                        }}
-                      >
-                        <figure
-                          className="product-style"
-                          style={{ marginBottom: "15px" }}
+                {loading ? (
+                  <CircularProgress />
+                ) : error ? (
+                  <Typography variant="body1">{error}</Typography>
+                ) : (
+                  featuredBooks.map((book, index) => (
+                    <div
+                      key={book.id || `book-${index}`}
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        position: "relative",
+                      }}
+                    >
+                      <CustomTooltip title="Click for more details">
+                        <div
+                          className="product-item"
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
                         >
-                          {book.cover_id ? (
-                            <img
-                              src={`https://covers.openlibrary.org/b/id/${book.cover_id}-L.jpg`}
-                              alt="Books"
-                              className="product-item"
+                          <figure
+                            className="product-style"
+                            style={{ marginBottom: "15px" }}
+                          >
+                            {book.cover_id ? (
+                              <img
+                                src={`https://covers.openlibrary.org/b/id/${book.cover_id}-L.jpg`}
+                                alt="Books"
+                                className="product-item"
+                                style={{
+                                  width: "100%",
+                                  height: "auto",
+                                  cursor: "pointer",
+                                }}
+                                onError={(e) =>
+                                  (e.target.style.display = "none")
+                                }
+                                onClick={() => handleImageClick(book)}
+                              />
+                            ) : null}
+                            <button
+                              type="button"
+                              className="add-to-cart"
+                              data-product-tile="add-to-cart"
+                              onClick={() => handleAddToCart(book)}
+                            >
+                              Add to Cart
+                            </button>
+                          </figure>
+                          <figcaption style={{ textAlign: "center" }}>
+                            <h3
+                              className="book-title"
                               style={{
-                                width: "100%",
-                                height: "auto",
-                                cursor: "pointer",
+                                fontSize: "1.25rem",
+                                marginBottom: "10px",
                               }}
-                              onClick={() => handleImageClick(book)}
-                            />
-                          ) : null}
-                          <button
-                            type="button"
-                            className="add-to-cart"
-                            data-product-tile="add-to-cart"
-                            onClick={() => handleAddToCart(book)}
-                          >
-                            Add to Cart
-                          </button>
-                        </figure>
-                        <figcaption style={{ textAlign: "center" }}>
-                          <h3
-                            className="book-title"
-                            style={{
-                              fontSize: "1.25rem",
-                              marginBottom: "10px",
-                            }}
-                          >
-                            {book.title}
-                          </h3>
-                          <span
-                            style={{ display: "block", marginBottom: "10px" }}
-                          >
-                            {book.authors
-                              .map((author) => author.name)
-                              .join(", ")}
-                          </span>
-                          <div
-                            className="item-price"
-                            style={{ fontSize: "1.25rem", color: "#333" }}
-                          >
-                            ${book.price}
-                          </div>
-                          <Typography variant="body2" color="textSecondary">
-                            Quantity: {book.quantity}
-                          </Typography>
-                        </figcaption>
-                      </div>
-                    </CustomTooltip>
-                  </div>
-                ))}
+                            >
+                              {book.title}
+                            </h3>
+                            <span
+                              style={{ display: "block", marginBottom: "10px" }}
+                            >
+                              {book.authors
+                                .map((author) => author.name)
+                                .join(", ")}
+                            </span>
+                            <div
+                              className="item-price"
+                              style={{ fontSize: "1.25rem", color: "#333" }}
+                            >
+                              ${book.price}
+                            </div>
+                            <Typography variant="body2" color="textSecondary">
+                              Quantity: {book.quantity}
+                            </Typography>
+                          </figcaption>
+                        </div>
+                      </CustomTooltip>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </div>

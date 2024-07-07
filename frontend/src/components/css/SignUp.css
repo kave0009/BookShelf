@@ -40,12 +40,11 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-top: 7rem;
+  padding: 7rem 0 7rem 0;
 }
 
 footer {
   text-align: center;
-  padding: 10px;
   background-color: #f1f1f1;
 }
 

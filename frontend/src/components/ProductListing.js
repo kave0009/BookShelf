@@ -68,16 +68,6 @@ const ProductListing = ({ handleAddToCart, handleImageClick }) => {
       .filter((book) => book !== null);
   };
 
-  const checkImageExists = async (url, book) => {
-    try {
-      const response = await axios.get(url);
-      return response.status === 200;
-    } catch {
-      console.log(`Image fetch failed for book: ${book.title}`);
-      return false;
-    }
-  };
-
   const fetchGenreBooks = useCallback(async (genre) => {
     setLoading(true);
     setError(null);
@@ -85,18 +75,7 @@ const ProductListing = ({ handleAddToCart, handleImageClick }) => {
       const dbBooks = await fetchBooksFromDB();
       const apiBooks = await fetchBooksFromAPI(genre);
       const mergedBooks = mergeBookData(dbBooks, apiBooks);
-
-      const imageChecks = mergedBooks.map(async (book) => {
-        const imageUrl = `https://covers.openlibrary.org/b/id/${book.cover_id}-L.jpg`;
-        const imageExists = await checkImageExists(imageUrl, book);
-        return imageExists ? book : null;
-      });
-
-      const booksWithImages = (await Promise.all(imageChecks)).filter(
-        (book) => book !== null
-      );
-
-      setBooks(booksWithImages);
+      setBooks(mergedBooks);
     } catch (error) {
       setError(error.message);
     } finally {
@@ -158,6 +137,7 @@ const ProductListing = ({ handleAddToCart, handleImageClick }) => {
                           height: "auto",
                           cursor: "pointer",
                         }}
+                        onError={(e) => (e.target.style.display = "none")}
                         onClick={() => handleImageClick(book)}
                       />
                     ) : null}

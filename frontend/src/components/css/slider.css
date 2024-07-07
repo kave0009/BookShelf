@@ -67,6 +67,7 @@
   background-color: rgba(0, 0, 0, 0.5);
   cursor: pointer;
   transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out;
+  margin-bottom: 0.5rem;
 }
 
 .bullet.active {
