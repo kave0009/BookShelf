@@ -15,7 +15,7 @@ const populateBooks = async (books) => {
   for (const book of books) {
     const title = book.title;
     const quantity = 100;
-    const price = 0; // Set a default price
+    const price = 0;
 
     const query = `
       INSERT INTO books (title, quantity, price)

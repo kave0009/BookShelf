@@ -12,7 +12,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import StarIcon from "@mui/icons-material/Star";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import "./styles.css";
+import "./css/styles.css";
 
 const generateStaticSummary = () => {
   return "This is an enthralling book that captures the essence of adventure and keeps you hooked till the last page. A masterpiece that explores deep human emotions and relationships, a fascinating tale of courage, resilience, and triumph.";

@@ -17,7 +17,7 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import LoginIcon from "@mui/icons-material/Login";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import Login from "./Login";
-import "./styles.css";
+import "./css/styles.css";
 import BookshelfLogo from "./images/BOOKSHELF.svg";
 
 const Header = ({ cartItemCount, user, setUser, onLogout }) => {
@@ -121,7 +121,7 @@ const Header = ({ cartItemCount, user, setUser, onLogout }) => {
           <img
             src={BookshelfLogo}
             alt="Bookshelf"
-            style={{ height: "80px", width: "auto", padding: "0.7rem" }}
+            style={{ height: "80px", width: "auto", padding: "0.6rem" }}
           />
         </Box>
         {user ? (

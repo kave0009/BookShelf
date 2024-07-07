@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Container } from "@mui/material";
+import { Container, Dialog } from "@mui/material";
 import Home from "./Home";
 import ProductListing from "./ProductListing";
 import ShoppingCart from "./ShoppingCart";
 import SignUp from "./SignUp";
 import Login from "./Login";
-import Footer from "./Footer";
 import Checkout from "./Checkout";
 import Receipt from "./Receipt";
 import Header from "./Header";
 import BookDialog from "./BookDialog";
 import { ProductProvider } from "./ProductContext";
+import NavigateToSection from "./NavigateToSection";
 
 const App = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -19,26 +19,24 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [selectedBook, setSelectedBook] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [loginDialogOpen, setLoginDialogOpen] = useState(false);
 
   useEffect(() => {
     setDistinctItemsCount(cartItems.length);
   }, [cartItems]);
 
   const handleAddToCart = (item) => {
-    console.log("Adding item to cart:", item);
     setCartItems((prevItems) => {
       const existingItem = prevItems.find(
         (cartItem) => cartItem.title === item.title
       );
       if (existingItem) {
-        console.log("Item already in cart, increasing quantity");
         return prevItems.map((cartItem) =>
           cartItem.title === item.title
             ? { ...cartItem, quantity: cartItem.quantity + 1 }
             : cartItem
         );
       } else {
-        console.log("Item not in cart, adding new item");
         return [
           ...prevItems,
           { ...item, quantity: 1, bookId: item.bookId || item.id },
@@ -86,6 +84,14 @@ const App = () => {
     setDialogOpen(true);
   };
 
+  const handleOpenLoginDialog = () => {
+    setLoginDialogOpen(true);
+  };
+
+  const handleCloseLoginDialog = () => {
+    setLoginDialogOpen(false);
+  };
+
   useEffect(() => {
     console.log("Cart items updated:", cartItems);
   }, [cartItems]);
@@ -112,7 +118,12 @@ const App = () => {
             />
             <Route
               path="/genre/:genre"
-              element={<ProductListing handleAddToCart={handleAddToCart} />}
+              element={
+                <ProductListing
+                  handleAddToCart={handleAddToCart}
+                  showFeatured={false}
+                />
+              }
             />
             <Route
               path="/cart"
@@ -146,13 +157,16 @@ const App = () => {
             <Route path="/receipt" element={<Receipt />} />
           </Routes>
         </Container>
-        <Footer />
+        <NavigateToSection onOpenLoginDialog={handleOpenLoginDialog} />
         <BookDialog
           open={dialogOpen}
           onClose={() => setDialogOpen(false)}
           book={selectedBook}
           handleAddToCart={handleAddToCart}
         />
+        <Dialog open={loginDialogOpen} onClose={handleCloseLoginDialog}>
+          <Login setUser={setUser} />
+        </Dialog>
       </Router>
     </ProductProvider>
   );

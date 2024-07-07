@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Container, Typography, Grid, CircularProgress } from "@mui/material";
-import "./styles.css";
-import "./promise.css";
-import { ReactComponent as BannerSVG } from "./images/banner.svg";
+import { Container, Typography, CircularProgress } from "@mui/material";
+import "./css/styles.css";
+import "./css/promise.css";
+import BillboardSlider from "./BillboardSlider";
 import CustomTooltip from "./CustomTooltip";
 import Popular from "./images/Popular.svg";
 import Featured from "./images/Featured.svg";
@@ -12,6 +12,7 @@ import Prices from "./images/Prices.svg";
 import Privacy from "./images/Privacy.svg";
 import Fast from "./images/fast.svg";
 import Service from "./images/service.svg";
+import ProductListing from "./ProductListing";
 
 const genres = [
   { title: "History", link: "history" },
@@ -29,12 +30,10 @@ const items = [
 
 const Home = ({ handleAddToCart, handleImageClick }) => {
   const [featuredBooks, setFeaturedBooks] = useState([]);
-  const [selectedGenre, setSelectedGenre] = useState("history");
-  const [genreBooks, setGenreBooks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchBooksFromAPI = async (genre, numBooks = 12) => {
+  const fetchBooksFromAPI = async (genre, numBooks = 50) => {
     try {
       const response = await axios.get(
         `https://openlibrary.org/subjects/${encodeURIComponent(
@@ -70,7 +69,7 @@ const Home = ({ handleAddToCart, handleImageClick }) => {
     return apiBooks
       .map((apiBook) => {
         const dbBook = dbBooksMap.get(apiBook.title.toLowerCase());
-        if (dbBook) {
+        if (dbBook && apiBook.cover_id) {
           return {
             ...apiBook,
             price: dbBook.price,
@@ -83,87 +82,69 @@ const Home = ({ handleAddToCart, handleImageClick }) => {
       .filter((book) => book !== null);
   };
 
-  useEffect(() => {
-    const fetchFeaturedBooks = async () => {
-      setLoading(true);
-      try {
-        const dbBooks = await fetchBooksFromDB();
-        const allBooksPromises = genres.map((genre) =>
-          fetchBooksFromAPI(genre.link, 50)
-        );
-        const allBooks = await Promise.all(allBooksPromises);
-        const flattenedBooks = allBooks.flat();
-        const mergedBooks = mergeBookData(dbBooks, flattenedBooks);
+  const checkImageExists = async (url, book) => {
+    try {
+      const response = await axios.get(url);
+      return response.status === 200;
+    } catch {
+      console.log(`Image fetch failed for book: ${book.title}`);
+      return false;
+    }
+  };
 
-        const uniqueBooks = new Map();
-        for (const book of mergedBooks) {
-          if (
-            uniqueBooks.size < 4 &&
-            !uniqueBooks.has(book.title.toLowerCase())
-          ) {
-            uniqueBooks.set(book.title.toLowerCase(), book);
-          }
-          if (uniqueBooks.size === 4) break;
-        }
-
-        setFeaturedBooks(Array.from(uniqueBooks.values()));
-      } catch (error) {
-        setError("Error fetching featured books");
-        console.error(
-          "Error fetching featured books:",
-          error.message,
-          error.stack
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchFeaturedBooks();
-  }, []);
-
-  const fetchGenreBooks = useCallback(async (genre) => {
+  const fetchFeaturedBooks = async () => {
     setLoading(true);
-    setError(null);
     try {
       const dbBooks = await fetchBooksFromDB();
-      const apiBooks = await fetchBooksFromAPI(genre, 50);
-      const mergedBooks = mergeBookData(dbBooks, apiBooks);
-      setGenreBooks(mergedBooks);
+      const allBooksPromises = genres.map((genre) =>
+        fetchBooksFromAPI(genre.link)
+      );
+      const allBooks = await Promise.all(allBooksPromises);
+      const flattenedBooks = allBooks.flat();
+      const mergedBooks = mergeBookData(dbBooks, flattenedBooks);
+
+      const booksWithImages = [];
+      for (const book of mergedBooks) {
+        const imageUrl = `https://covers.openlibrary.org/b/id/${book.cover_id}-L.jpg`;
+        if (await checkImageExists(imageUrl, book)) {
+          booksWithImages.push(book);
+        }
+        if (booksWithImages.length === 4) break;
+      }
+
+      setFeaturedBooks(booksWithImages);
     } catch (error) {
-      setError(error.message);
+      setError("Error fetching featured books");
+      console.error(
+        "Error fetching featured books:",
+        error.message,
+        error.stack
+      );
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
   useEffect(() => {
-    fetchGenreBooks("history");
-  }, [fetchGenreBooks]);
-
-  const handleGenreClick = (genre) => {
-    setSelectedGenre(genre);
-    fetchGenreBooks(genre);
-  };
-
-  const handleAddToCartWithUniqueID = (book) => {
-    handleAddToCart({ ...book, uniqueCartItemId: `${book.id}-${Date.now()}` });
-  };
+    fetchFeaturedBooks();
+  }, []);
 
   return (
     <div
       className="MuiContainer-root MuiContainer-maxWidthLg content css-loqqzyl-MuiContainer-root"
       style={{ padding: "0 0 0 0" }}
     >
-      <section id="banner">
-        <BannerSVG style={{ width: "100%", height: "100%" }} />
+      <section>
+        <BillboardSlider />
       </section>
-
       <section id="featured-books" className="py-5 my-5">
         <div className="container">
           <div className="row">
             <div className="col-md-12">
               <div className="section-header align-center">
+                <div className="title">
+                  <span>Quality Items</span>
+                </div>
                 <h2 className="section-title">
                   <img
                     src={Featured}
@@ -203,22 +184,24 @@ const Home = ({ handleAddToCart, handleImageClick }) => {
                           className="product-style"
                           style={{ marginBottom: "15px" }}
                         >
-                          <img
-                            src={`https://covers.openlibrary.org/b/id/${book.cover_id}-L.jpg`}
-                            alt="Books"
-                            className="product-item"
-                            style={{
-                              width: "100%",
-                              height: "auto",
-                              cursor: "pointer",
-                            }}
-                            onClick={() => handleImageClick(book)}
-                          />
+                          {book.cover_id ? (
+                            <img
+                              src={`https://covers.openlibrary.org/b/id/${book.cover_id}-L.jpg`}
+                              alt="Books"
+                              className="product-item"
+                              style={{
+                                width: "100%",
+                                height: "auto",
+                                cursor: "pointer",
+                              }}
+                              onClick={() => handleImageClick(book)}
+                            />
+                          ) : null}
                           <button
                             type="button"
                             className="add-to-cart"
                             data-product-tile="add-to-cart"
-                            onClick={() => handleAddToCartWithUniqueID(book)}
+                            onClick={() => handleAddToCart(book)}
                           >
                             Add to Cart
                           </button>
@@ -263,6 +246,9 @@ const Home = ({ handleAddToCart, handleImageClick }) => {
       <section className="promise-section">
         <div className="container">
           <div className="section-header align-center">
+            <div className="title">
+              <span>commitments</span>
+            </div>
             <h2 className="section-title">
               <img
                 src={PromiseSection}
@@ -284,8 +270,8 @@ const Home = ({ handleAddToCart, handleImageClick }) => {
                     src={item.src}
                     alt={item.alt}
                     style={{
-                      width: "300px",
-                      height: "300px",
+                      width: "250px",
+                      height: "250px",
                     }}
                   />
                 </div>
@@ -311,106 +297,15 @@ const Home = ({ handleAddToCart, handleImageClick }) => {
                   />
                 </h2>
               </div>
-              <ul className="tabs">
-                {genres.map((genre) => (
-                  <li key={genre.title} className="tab">
-                    <button
-                      onClick={() => handleGenreClick(genre.link)}
-                      className={selectedGenre === genre.link ? "active" : ""}
-                    >
-                      {genre.title}
-                    </button>
-                  </li>
-                ))}
-              </ul>
+              <ProductListing
+                handleAddToCart={handleAddToCart}
+                handleImageClick={handleImageClick}
+                showFeatured={false}
+              />
             </div>
           </div>
         </div>
       </section>
-      <div id="genre-books" className="py-5 my-5">
-        <Container>
-          {loading ? (
-            <CircularProgress />
-          ) : error ? (
-            <div>Error fetching books: {error}</div>
-          ) : (
-            <Grid container spacing={4}>
-              {genreBooks.map((book, index) => (
-                <Grid
-                  item
-                  key={book.id || `genre-book-${index}`}
-                  xs={12}
-                  sm={6}
-                  md={4}
-                  lg={3}
-                >
-                  <CustomTooltip title="Click for more details">
-                    <div
-                      className="product-item"
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                      }}
-                    >
-                      <figure
-                        className="product-style"
-                        style={{ marginBottom: "15px" }}
-                      >
-                        <img
-                          src={`https://covers.openlibrary.org/b/id/${book.cover_id}-L.jpg`}
-                          alt="Books"
-                          className="product-item"
-                          style={{
-                            width: "100%",
-                            height: "auto",
-                            cursor: "pointer",
-                          }}
-                          onClick={() => handleImageClick(book)}
-                        />
-
-                        <button
-                          type="button"
-                          className="add-to-cart"
-                          data-product-tile="add-to-cart"
-                          onClick={() => handleAddToCartWithUniqueID(book)}
-                        >
-                          Add to Cart
-                        </button>
-                      </figure>
-                      <figcaption style={{ textAlign: "center" }}>
-                        <h3
-                          className="book-title"
-                          style={{ fontSize: "1.25rem", marginBottom: "10px" }}
-                        >
-                          {book.title}
-                        </h3>
-                        <span
-                          style={{ display: "block", marginBottom: "10px" }}
-                        >
-                          {book.authors &&
-                            book.authors
-                              .map((author) => author.name)
-                              .join(", ")}
-                        </span>
-                        <div
-                          className="item-price"
-                          style={{ fontSize: "1.25rem", color: "#333" }}
-                        >
-                          ${book.price}
-                        </div>
-                        <Typography variant="body2" color="textSecondary">
-                          Quantity: {book.quantity}
-                        </Typography>
-                      </figcaption>
-                    </div>
-                  </CustomTooltip>
-                </Grid>
-              ))}
-            </Grid>
-          )}
-        </Container>
-      </div>
     </div>
   );
 };

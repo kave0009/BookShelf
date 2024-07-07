@@ -6,13 +6,13 @@ import authRoutes from "./routes/auth.mjs";
 import productRoutes from "./routes/products.mjs";
 import cartRoutes from "./routes/cart.mjs";
 import checkoutRoutes from "./routes/checkout.mjs";
-import booksRoutes from "./routes/books.mjs"; // Import the books route
-import { query } from "./db.mjs"; // Ensure you import the query function
+import booksRoutes from "./routes/books.mjs"; 
+import { query } from "./db.mjs"; 
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5003; // Changed to 5003
+const PORT = process.env.PORT || 5003; 
 
 app.use(cors());
 app.use(bodyParser.json({ limit: "50mb" }));
@@ -22,7 +22,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/checkout", checkoutRoutes);
-app.use("/api/books", booksRoutes); // Use the books route
+app.use("/api/books", booksRoutes); 
 
 app.get("/test-db", async (req, res) => {
   try {

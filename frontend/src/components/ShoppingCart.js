@@ -16,7 +16,7 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import DeleteIcon from "@mui/icons-material/Delete";
 import axios from "axios";
 import Checkout from "./Checkout";
-import "./styles.css";
+import "./css/styles.css";
 
 const ShoppingCart = ({
   cartItems = [],

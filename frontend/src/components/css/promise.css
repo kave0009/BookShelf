@@ -27,9 +27,7 @@
   animation-play-state: paused !important;
 }
 
-.item {
-  width: 350px; 
-  height: 350px; 
+.item { 
   flex-shrink: 0;
 }
 

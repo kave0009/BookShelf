@@ -1,46 +1,134 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import { Container, Grid, Typography } from "@mui/material";
-import "./styles.css";
+import { Container, Grid, Typography, CircularProgress } from "@mui/material";
+import CustomTooltip from "./CustomTooltip";
+import "./css/styles.css";
 
-const ProductListing = ({ handleAddToCart }) => {
+const genres = [
+  { title: "History", link: "history" },
+  { title: "Romance", link: "love" },
+  { title: "Science Fiction", link: "science-fiction" },
+  { title: "Fantasy", link: "fantasy" },
+];
+
+const ProductListing = ({ handleAddToCart, handleImageClick }) => {
   const { genre } = useParams();
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedGenre, setSelectedGenre] = useState(genre || "history");
+
+  const fetchBooksFromAPI = async (genre, numBooks = 50) => {
+    try {
+      const response = await axios.get(
+        `https://openlibrary.org/subjects/${encodeURIComponent(
+          genre
+        )}.json?limit=${numBooks}`
+      );
+      return response.data.works.map((book) => ({
+        id: book.cover_edition_key || book.key,
+        title: book.title,
+        authors: book.authors || [],
+        cover_id: book.cover_id,
+      }));
+    } catch (error) {
+      console.error(`Error fetching books from API:`, error);
+      return [];
+    }
+  };
+
+  const fetchBooksFromDB = async () => {
+    try {
+      const response = await axios.get("http://localhost:5002/api/books");
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching books from database:", error);
+      return [];
+    }
+  };
+
+  const mergeBookData = (dbBooks, apiBooks) => {
+    const dbBooksMap = new Map();
+    dbBooks.forEach((book) => dbBooksMap.set(book.title.toLowerCase(), book));
+
+    return apiBooks
+      .map((apiBook) => {
+        const dbBook = dbBooksMap.get(apiBook.title.toLowerCase());
+        if (dbBook && apiBook.cover_id) {
+          return {
+            ...apiBook,
+            price: dbBook.price,
+            quantity: dbBook.quantity,
+            id: dbBook.id,
+          };
+        }
+        return null;
+      })
+      .filter((book) => book !== null);
+  };
+
+  const checkImageExists = async (url, book) => {
+    try {
+      const response = await axios.get(url);
+      return response.status === 200;
+    } catch {
+      console.log(`Image fetch failed for book: ${book.title}`);
+      return false;
+    }
+  };
+
+  const fetchGenreBooks = useCallback(async (genre) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const dbBooks = await fetchBooksFromDB();
+      const apiBooks = await fetchBooksFromAPI(genre);
+      const mergedBooks = mergeBookData(dbBooks, apiBooks);
+
+      const imageChecks = mergedBooks.map(async (book) => {
+        const imageUrl = `https://covers.openlibrary.org/b/id/${book.cover_id}-L.jpg`;
+        const imageExists = await checkImageExists(imageUrl, book);
+        return imageExists ? book : null;
+      });
+
+      const booksWithImages = (await Promise.all(imageChecks)).filter(
+        (book) => book !== null
+      );
+
+      setBooks(booksWithImages);
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchBooks = async () => {
-      try {
-        const response = await axios.get(
-          `https://openlibrary.org/subjects/${encodeURIComponent(genre)}.json`
-        );
-        const fetchedBooks = response.data.works.map((book) => ({
-          ...book,
-          price: (Math.random() * 40 + 10).toFixed(2),
-          quantity: 100,
-          id: book.cover_edition_key || book.key,
-        }));
-        console.log("Fetched Books:", fetchedBooks);
-        setBooks(fetchedBooks);
-        setLoading(false);
-      } catch (error) {
-        setError("Error fetching books");
-        setLoading(false);
-      }
-    };
+    fetchGenreBooks(selectedGenre);
+  }, [fetchGenreBooks, selectedGenre]);
 
-    fetchBooks();
-  }, [genre]);
+  const handleGenreClick = (genre) => {
+    setSelectedGenre(genre);
+    fetchGenreBooks(genre);
+  };
 
   return (
     <Container>
-      <Typography variant="h4" component="div" gutterBottom>
-        {genre} Books
-      </Typography>
+      <ul className="tabs">
+        {genres.map((genre) => (
+          <li key={genre.title} className="tab">
+            <button
+              onClick={() => handleGenreClick(genre.link)}
+              className={selectedGenre === genre.link ? "active" : ""}
+            >
+              {genre.title}
+            </button>
+          </li>
+        ))}
+      </ul>
       {loading ? (
-        <Typography variant="body1">Loading...</Typography>
+        <CircularProgress />
       ) : error ? (
         <Typography variant="body1">{error}</Typography>
       ) : (
@@ -55,25 +143,34 @@ const ProductListing = ({ handleAddToCart }) => {
                   alignItems: "center",
                 }}
               >
-                <figure
-                  className="product-style"
-                  style={{ marginBottom: "15px" }}
-                >
-                  <img
-                    src={`https://covers.openlibrary.org/b/id/${book.cover_id}-L.jpg`}
-                    alt={book.title}
-                    className="product-item"
-                    style={{ width: "100%", height: "auto" }}
-                  />
-                  <button
-                    type="button"
-                    className="add-to-cart"
-                    data-product-tile="add-to-cart"
-                    onClick={() => handleAddToCart(book)}
+                <CustomTooltip title="Click for more details">
+                  <figure
+                    className="product-style"
+                    style={{ marginBottom: "15px" }}
                   >
-                    Add to Cart
-                  </button>
-                </figure>
+                    {book.cover_id ? (
+                      <img
+                        src={`https://covers.openlibrary.org/b/id/${book.cover_id}-L.jpg`}
+                        alt={book.title}
+                        className="product-item"
+                        style={{
+                          width: "100%",
+                          height: "auto",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => handleImageClick(book)}
+                      />
+                    ) : null}
+                    <button
+                      type="button"
+                      className="add-to-cart"
+                      data-product-tile="add-to-cart"
+                      onClick={() => handleAddToCart(book)}
+                    >
+                      Add to Cart
+                    </button>
+                  </figure>
+                </CustomTooltip>
                 <figcaption style={{ textAlign: "center" }}>
                   <h3 style={{ fontSize: "1.25rem", marginBottom: "10px" }}>
                     {book.title}

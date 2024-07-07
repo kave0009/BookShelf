@@ -40,8 +40,7 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-bottom: 10rem;
-  padding-top: 4rem;
+  padding-top: 7rem;
 }
 
 footer {
@@ -64,4 +63,13 @@ footer {
   max-width: 110%;
   max-height: 100%;
   object-fit: contain;
+}
+
+@media (max-width: 900px) {
+  form{
+    max-width: 700px;
+  }
+  main{
+      margin: auto;
+  }
 }

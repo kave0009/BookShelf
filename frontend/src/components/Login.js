@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { loginUser } from "../api";
 import { Container, TextField, Button, Typography, Alert } from "@mui/material";
-import "./styles.css";
+import "./css/styles.css";
 
 const Login = ({ setUser }) => {
   const [username, setUsername] = useState("");
@@ -45,6 +45,7 @@ const Login = ({ setUser }) => {
         align="center"
         gutterBottom
         className="section-title"
+        style={{ marginTop: "20px" }}
       >
         Login
       </Typography>

@@ -1,4 +1,3 @@
-// routes/products.mjs
 import { Router } from "express";
 import { query } from "../db.mjs";
 

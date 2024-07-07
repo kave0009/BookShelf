@@ -9,7 +9,7 @@ import {
   Alert,
   Box,
 } from "@mui/material";
-import "./SignUp.css";
+import "./css/SignUp.css";
 import Billboard from "./images/Baloon.svg";
 
 const SignUp = ({ setUser }) => {
@@ -227,7 +227,7 @@ const SignUp = ({ setUser }) => {
             </Grid>
             <Grid item xs={12} md={6}>
               <div className="billboard">
-                <img src={Billboard} />
+                <img src={Billboard} alt="Billboard" />
               </div>
             </Grid>
           </Grid>

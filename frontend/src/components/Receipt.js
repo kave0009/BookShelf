@@ -1,7 +1,7 @@
-import React from "react"; // Ensure this line is at the top
+import React from "react"; 
 import { Container, Typography, Grid, Button } from "@mui/material";
 import { useLocation, Link } from "react-router-dom";
-import "./styles.css";
+import "./css/styles.css";
 
 const Receipt = () => {
   const { state } = useLocation();

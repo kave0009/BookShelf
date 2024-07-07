@@ -10,7 +10,7 @@ import {
   CircularProgress,
   Paper,
 } from "@mui/material";
-import "./styles.css";
+import "./css/styles.css";
 
 const validProvinces = [
   "AB",

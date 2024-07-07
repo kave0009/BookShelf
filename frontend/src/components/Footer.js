@@ -2,13 +2,15 @@ import React from "react";
 import { Box, Grid, Typography, Link } from "@mui/material";
 import Logo from "./images/LOGO.svg";
 
-const Footer = () => {
+const Footer = ({ onOpenLoginDialog, navigateToSection }) => {
+  const getCurrentYear = () => new Date().getFullYear();
+
   return (
     <Box component="footer" sx={{ bgcolor: "var(--light-color)", p: 4, mt: 4 }}>
       <Grid container spacing={4}>
         <Grid item xs={12} md={3}>
           <Box className="footer-item">
-            <img src={Logo} className="footer-logo" />
+            <img src={Logo} alt="BookShelf Logo" className="footer-logo" />
           </Box>
         </Grid>
         <Grid item xs={12} md={3}>
@@ -32,7 +34,11 @@ const Footer = () => {
             </Typography>
             <ul className="menu-list">
               <li className="menu-item">
-                <Link href="/login" color="textSecondary">
+                <Link
+                  href="#"
+                  color="textSecondary"
+                  onClick={onOpenLoginDialog}
+                >
                   Log In
                 </Link>
               </li>
@@ -46,12 +52,20 @@ const Footer = () => {
             </Typography>
             <ul className="menu-list">
               <li className="menu-item">
-                <Link href="#featured-books" color="textSecondary">
+                <Link
+                  href="#"
+                  color="textSecondary"
+                  onClick={() => navigateToSection("featured-books")}
+                >
                   Featured Books
                 </Link>
               </li>
               <li className="menu-item">
-                <Link href="#popular-books" color="textSecondary">
+                <Link
+                  href="#"
+                  color="textSecondary"
+                  onClick={() => navigateToSection("popular-books")}
+                >
                   Popular Genres
                 </Link>
               </li>
@@ -65,8 +79,7 @@ const Footer = () => {
         color="textSecondary"
         sx={{ mt: 4 }}
       >
-        &copy; {new Date().getFullYear()} Developed by Artin Kaveh. All rights
-        reserved.
+        &copy; {getCurrentYear()} Developed by Artin Kaveh. All rights reserved.
       </Typography>
     </Box>
   );

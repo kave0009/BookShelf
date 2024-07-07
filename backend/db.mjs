@@ -1,4 +1,3 @@
-// db.mjs
 import pkg from "pg";
 const { Client } = pkg;
 
@@ -13,7 +12,6 @@ const connectDB = async () => {
 
 export { connectDB };
 
-// Export other necessary functions
 export const query = async (text, params) => {
   const client = await connectDB();
   const result = await client.query(text, params);

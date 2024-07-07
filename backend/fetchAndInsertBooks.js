@@ -22,7 +22,7 @@ const insertBooksToDB = async (books) => {
   for (const book of books) {
     const title = book.title;
     const quantity = 100;
-    const price = (Math.random() * 40 + 10).toFixed(2); // Set a random price
+    const price = (Math.random() * 40 + 10).toFixed(2);
 
     const query = `
       INSERT INTO books (title, quantity, price)

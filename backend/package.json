@@ -1,16 +1,11 @@
 {
-  "name": "e-commerce-app",
+  "name": "backend",
   "version": "1.0.0",
-  "description": "An online bookstore application",
   "main": "server.mjs",
   "scripts": {
     "start": "cross-env DATABASE_URL=postgresql://kave0009:%40Rtin1382@localhost:5432/ecommerce JWT_SECRET=mysecretkey node server.mjs",
-    "dev": "cross-env DATABASE_URL=postgresql://kave0009:%40Rtin1382@localhost:5432/ecommerce JWT_SECRET=mysecretkey nodemon server.mjs",
-    "build": "webpack --config webpack.config.js",
-    "serve": "webpack serve --config webpack.config.js"
+    "dev": "cross-env DATABASE_URL=postgresql://kave0009:%40Rtin1382@localhost:5432/ecommerce JWT_SECRET=mysecretkey nodemon server.mjs"
   },
-  "author": "Artin Kaveh",
-  "license": "MIT",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
@@ -20,9 +15,7 @@
     "jsonwebtoken": "^8.5.1",
     "pg": "^8.12.0",
     "react-slick": "^0.28.1",
-    "slick-carousel": "^1.8.1",
-    "react": "^17.0.2",
-  "react-dom": "^17.0.2"
+    "slick-carousel": "^1.8.1"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
