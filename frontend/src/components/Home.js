@@ -54,8 +54,13 @@ const Home = ({ handleAddToCart, handleImageClick }) => {
 
   const fetchBooksFromDB = async () => {
     try {
-      const response = await axios.get("http://localhost:5002/api/books");
-      return response.data;
+      const response = await axios.get("http://bookshelfapp.com/api/books");
+      if (Array.isArray(response.data)) {
+        return response.data;
+      } else {
+        console.error("Expected an array but got:", response.data);
+        return [];
+      }
     } catch (error) {
       console.error("Error fetching books from database:", error);
       return [];
@@ -178,7 +183,11 @@ const Home = ({ handleAddToCart, handleImageClick }) => {
                                   width: "100%",
                                   height: "auto",
                                   cursor: "pointer",
+                                  display: "none", // Hide initially
                                 }}
+                                onLoad={(e) =>
+                                  (e.target.style.display = "block")
+                                }
                                 onError={(e) =>
                                   (e.target.style.display = "none")
                                 }

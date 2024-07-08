@@ -1,60 +1,71 @@
 .sliders {
   position: relative;
-  height: 55vh;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  flex-direction: column; 
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
 }
 
 .slide-container {
   position: relative;
   width: 100%;
-  height: 100%;
-  overflow: hidden;
+  height: 50vh;
 }
 
 .slide {
   position: absolute;
-  top: 0;
-  left: 0;
+  width: 100%;
+  height: 100%;
   transition: opacity 1s ease-in-out;
   opacity: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  background-size: cover;
+  background-position: center;
 }
 
 .slide.active {
   opacity: 1;
 }
 
-.full-width-svg,
-.full-width-img {
+.full-width-img,
+.full-width-svg {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+}
+
+.full-width-img-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 
 .button {
   position: absolute;
   top: 85%;
-  left: 50%;
+  left: 51%;
   transform: translate(-50%, -50%);
-  width: 170px; 
-  height: 50px; 
+  width: 17%; 
+  max-width: 200px; 
+  min-width: 80px; 
+  height: auto;
   cursor: pointer;
   transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
+
 .button:hover {
-  transform: translate(-50%, -55%) scale(1.08);
+  transform: translate(-50%, -50%) scale(1.08);
   box-shadow: 0 8px 16px #838959;
   border-radius: 0.5rem;
 }
 
 .bullet-container {
-  margin-top: 10px; 
+  margin-top: 10px;
   display: flex;
   gap: 10px;
   margin-bottom: 0.5rem;

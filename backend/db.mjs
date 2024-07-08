@@ -1,20 +1,26 @@
 import pkg from "pg";
-const { Client } = pkg;
+const { Pool } = pkg;
 
-const connectDB = async () => {
-  const client = new Client({
-    connectionString: process.env.DATABASE_URL,
-  });
-  await client.connect();
-  console.log("Database connected successfully");
-  return client;
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
+
+export const connectDB = async () => {
+  try {
+    await pool.connect();
+    console.log("Database connected successfully");
+  } catch (err) {
+    console.error("Failed to connect to the database:", err);
+    throw err;
+  }
 };
 
-export { connectDB };
-
 export const query = async (text, params) => {
-  const client = await connectDB();
-  const result = await client.query(text, params);
-  await client.end();
-  return result;
+  try {
+    const result = await pool.query(text, params);
+    return result;
+  } catch (err) {
+    console.error("Error executing query", err);
+    throw err;
+  }
 };

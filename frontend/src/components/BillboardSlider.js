@@ -3,7 +3,7 @@ import { ReactComponent as BannerSVG1 } from "./images/banner1.svg";
 import BannerPNG2 from "./images/banner2.png";
 import BannerPNG3 from "./images/banner3.png";
 import ButtonSVG from "./images/Button.svg";
-import { Link } from "react-router-dom"; // Import Link component
+import { Link } from "react-router-dom";
 import "./css/slider.css";
 
 const slides = [
@@ -47,7 +47,7 @@ const BillboardSlider = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       goToNextSlide();
-    }, 20000);
+    }, 200000);
 
     return () => clearInterval(interval);
   }, []);

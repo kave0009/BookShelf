@@ -1,21 +1,30 @@
-// server.mjs
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
-import { connectDB, query } from "./db.mjs"; // Ensure you import the query function
+import { connectDB } from "./db.mjs";
 import authRoutes from "./routes/auth.mjs";
 import productRoutes from "./routes/products.mjs";
 import cartRoutes from "./routes/cart.mjs";
 import checkoutRoutes from "./routes/checkout.mjs";
-import booksRoutes from "./routes/books.mjs"; // Import the books route
+import booksRoutes from "./routes/books.mjs";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5002;
 
-app.use(cors());
+// CORS configuration to allow requests from your frontend domain
+const corsOptions = {
+  origin: [
+    "http://3.96.194.12",
+    "http://bookshelfapp.com",
+    "http://www.bookshelfapp.com",
+  ],
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
@@ -29,7 +38,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/checkout", checkoutRoutes);
-app.use("/api/books", booksRoutes); // Use the books route
+app.use("/api/books", booksRoutes);
 
 app.get("/test-db", async (req, res) => {
   try {
