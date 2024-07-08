@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
-import { connectDB } from "./db.mjs";
+import { connectDB, query } from "./db.mjs";
 import authRoutes from "./routes/auth.mjs";
 import productRoutes from "./routes/products.mjs";
 import cartRoutes from "./routes/cart.mjs";
@@ -14,12 +14,11 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5002;
 
-// CORS configuration to allow requests from your frontend domain
 const corsOptions = {
   origin: [
-    "http://3.96.194.12",
-    "http://bookshelfapp.com",
-    "http://www.bookshelfapp.com",
+    "http://35.182.93.118",
+    "http://bookshelfz.com",
+    "http://www.bookshelfz.com",
   ],
   optionsSuccessStatus: 200,
 };
@@ -28,7 +27,6 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
-// Connect to the database
 connectDB().catch((err) => {
   console.error("Failed to connect to the database:", err);
   process.exit(1);
