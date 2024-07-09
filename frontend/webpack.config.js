@@ -1,11 +1,13 @@
 const path = require("path");
 const Dotenv = require("dotenv-webpack");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
   entry: "./src/index.js",
   output: {
     filename: "bundle.js",
     path: path.resolve(__dirname, "dist"),
+    publicPath: "/",
   },
   module: {
     rules: [
@@ -17,11 +19,11 @@ module.exports = {
         },
       },
       {
-        test: /\.css$/,
+        test: /\.css$/, // Handles CSS files
         use: ["style-loader", "css-loader"],
       },
       {
-        test: /\.svg$/,
+        test: /\.svg$/, // Handles SVG files
         use: [
           {
             loader: "@svgr/webpack",
@@ -34,13 +36,21 @@ module.exports = {
       },
     ],
   },
-  plugins: [new Dotenv()],
+  plugins: [
+    new Dotenv(), // Loads environment variables from .env file
+    new HtmlWebpackPlugin({
+      template: "./public/index.html", // Path to your HTML file
+      filename: "index.html",
+      inject: "body",
+    }),
+  ],
   resolve: {
-    extensions: [".js", ".jsx"],
+    extensions: [".js", ".jsx"], // Resolves JavaScript and JSX files
   },
   devServer: {
     contentBase: path.join(__dirname, "dist"),
     compress: true,
     port: 9000,
+    historyApiFallback: true, // Ensures React Router works with the dev server
   },
 };

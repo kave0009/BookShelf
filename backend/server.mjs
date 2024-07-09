@@ -2,36 +2,53 @@ import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
-import { connectDB, query } from "./db.mjs";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import authRoutes from "./routes/auth.mjs";
 import productRoutes from "./routes/products.mjs";
 import cartRoutes from "./routes/cart.mjs";
 import checkoutRoutes from "./routes/checkout.mjs";
 import booksRoutes from "./routes/books.mjs";
+import { connectDB, query } from "./db.mjs";
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5002;
+const PORT = process.env.PORT || 3001;
 
+// Security middleware
+app.use(helmet());
+
+// CORS configuration
 const corsOptions = {
   origin: [
-    "http://35.182.93.118",
     "http://bookshelfz.com",
+    "https://bookshelfz.com",
     "http://www.bookshelfz.com",
+    "https://www.bookshelfz.com",
   ],
   optionsSuccessStatus: 200,
 };
-
 app.use(cors(corsOptions));
+
+// Body parser middleware
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+});
+app.use(limiter);
+
+// Connect to the database
 connectDB().catch((err) => {
   console.error("Failed to connect to the database:", err);
   process.exit(1);
 });
 
+// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);

@@ -1,13 +1,19 @@
 {
-  "name": "ecommerce-app",
+  "name": "bookshelf-app",
   "version": "1.0.0",
   "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "scripts": {
-    "start-backend": "cd backend && node server.mjs",
-    "start-frontend": "cd frontend && npm start",
-    "start": "concurrently \"npm run start-backend\" \"npm run start-frontend\""
+    "start:frontend": "npm run start --prefix frontend",
+    "build:frontend": "npm run build --prefix frontend",
+    "start:backend": "npm run start --prefix backend",
+    "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\"",
+    "build": "npm run build:frontend"
   },
-  "devDependencies": {
-    "concurrently": "^8.2.2"
+  "dependencies": {
+    "concurrently": "^7.0.0"
   }
 }

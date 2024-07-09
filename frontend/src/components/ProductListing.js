@@ -40,7 +40,9 @@ const ProductListing = ({ handleAddToCart, handleImageClick }) => {
 
   const fetchBooksFromDB = async () => {
     try {
-      const response = await axios.get("http://localhost:5002/api/books");
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/books`
+      );
       return response.data;
     } catch (error) {
       console.error("Error fetching books from database:", error);

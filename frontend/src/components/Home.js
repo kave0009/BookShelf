@@ -54,7 +54,9 @@ const Home = ({ handleAddToCart, handleImageClick }) => {
 
   const fetchBooksFromDB = async () => {
     try {
-      const response = await axios.get("http://bookshelfapp.com/api/books");
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/books`
+      );
       if (Array.isArray(response.data)) {
         return response.data;
       } else {

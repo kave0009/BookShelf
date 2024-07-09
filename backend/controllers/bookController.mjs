@@ -8,9 +8,12 @@ const fetchBooksFromDatabase = async () => {
 export const getBooks = async (req, res) => {
   try {
     const books = await fetchBooksFromDatabase();
+    if (books.length === 0) {
+      return res.status(404).json({ message: "No books found" });
+    }
     res.json(books);
   } catch (error) {
     console.error("Error fetching books:", error);
-    res.status(500).json({ error: "An error occurred" });
+    res.status(500).json({ error: "An error occurred while fetching books" });
   }
 };
