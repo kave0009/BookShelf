@@ -2198,13 +2198,13 @@ footer#footer {
 
 .product-style button.add-to-cart {
   position: absolute;
-  background: #000;
+  background: #878d5d;
   color: #fff;
   width: 100%;
   margin: 0;
   text-transform: uppercase;
   text-align: center;
-  line-height: 3;
+  line-height: 2.5;
   bottom: 300px;
   bottom: -65px;
   left: 0;
