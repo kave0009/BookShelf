@@ -3,80 +3,32 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import { Container, Grid, Typography, CircularProgress } from "@mui/material";
 import CustomTooltip from "./CustomTooltip";
+import {
+  genres,
+  fetchBooksFromAPI,
+  fetchBooksFromDB,
+  mergeBookData,
+} from "./utility";
 import "./css/styles.css";
 
-const genres = [
-  { title: "History", link: "history" },
-  { title: "Romance", link: "love" },
-  { title: "Science Fiction", link: "science-fiction" },
-  { title: "Fantasy", link: "fantasy" },
-];
-
-const ProductListing = ({ handleAddToCart, handleImageClick }) => {
+const ProductListing = ({
+  handleAddToCart,
+  handleImageClick,
+  showFeatured,
+}) => {
   const { genre } = useParams();
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedGenre, setSelectedGenre] = useState(genre || "history");
 
-  const fetchBooksFromAPI = async (genre, numBooks = 50) => {
-    try {
-      const response = await axios.get(
-        `https://openlibrary.org/subjects/${encodeURIComponent(
-          genre
-        )}.json?limit=${numBooks}`
-      );
-      return response.data.works.map((book) => ({
-        id: book.cover_edition_key || book.key,
-        title: book.title,
-        authors: book.authors || [],
-        cover_id: book.cover_id,
-      }));
-    } catch (error) {
-      console.error(`Error fetching books from API:`, error);
-      return [];
-    }
-  };
-
-  const fetchBooksFromDB = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/books`
-      );
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching books from database:", error);
-      return [];
-    }
-  };
-
-  const mergeBookData = (dbBooks, apiBooks) => {
-    const dbBooksMap = new Map();
-    dbBooks.forEach((book) => dbBooksMap.set(book.title.toLowerCase(), book));
-
-    return apiBooks
-      .map((apiBook) => {
-        const dbBook = dbBooksMap.get(apiBook.title.toLowerCase());
-        if (dbBook && apiBook.cover_id) {
-          return {
-            ...apiBook,
-            price: dbBook.price,
-            quantity: dbBook.quantity,
-            id: dbBook.id,
-          };
-        }
-        return null;
-      })
-      .filter((book) => book !== null);
-  };
-
-  const fetchGenreBooks = useCallback(async (genre) => {
+  const fetchBooks = useCallback(async (genre) => {
     setLoading(true);
     setError(null);
     try {
       const dbBooks = await fetchBooksFromDB();
       const apiBooks = await fetchBooksFromAPI(genre);
-      const mergedBooks = mergeBookData(dbBooks, apiBooks);
+      const mergedBooks = await mergeBookData(dbBooks, apiBooks);
       setBooks(mergedBooks);
     } catch (error) {
       setError(error.message);
@@ -86,28 +38,30 @@ const ProductListing = ({ handleAddToCart, handleImageClick }) => {
   }, []);
 
   useEffect(() => {
-    fetchGenreBooks(selectedGenre);
-  }, [fetchGenreBooks, selectedGenre]);
+    fetchBooks(selectedGenre);
+  }, [fetchBooks, selectedGenre]);
 
   const handleGenreClick = (genre) => {
     setSelectedGenre(genre);
-    fetchGenreBooks(genre);
+    fetchBooks(genre);
   };
 
   return (
     <Container>
-      <ul className="tabs">
-        {genres.map((genre) => (
-          <li key={genre.title} className="tab">
-            <button
-              onClick={() => handleGenreClick(genre.link)}
-              className={selectedGenre === genre.link ? "active" : ""}
-            >
-              {genre.title}
-            </button>
-          </li>
-        ))}
-      </ul>
+      {!showFeatured && (
+        <ul className="tabs">
+          {genres.map((genre) => (
+            <li key={genre.title} className="tab">
+              <button
+                onClick={() => handleGenreClick(genre.link)}
+                className={selectedGenre === genre.link ? "active" : ""}
+              >
+                {genre.title}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
       {loading ? (
         <CircularProgress />
       ) : error ? (

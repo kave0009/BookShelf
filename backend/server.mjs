@@ -21,12 +21,7 @@ app.use(helmet());
 
 // CORS configuration
 const corsOptions = {
-  origin: [
-    "http://bookshelfz.com",
-    "https://bookshelfz.com",
-    "http://www.bookshelfz.com",
-    "https://www.bookshelfz.com",
-  ],
+  origin: ["http://localhost:3000"], // Allow local frontend during development
   optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
