@@ -36,32 +36,44 @@
 .full-width-svg {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
 }
 
 .full-width-img-container {
   position: relative;
+  width: 100vw;
+  height: 50vh;
+}
+
+.fixed-size-svg {
   width: 100%;
   height: 100%;
+  object-fit: cover;
+}
+
+.fixed-size-svg-container {
+  width: 100%;
+  height: 50vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .button {
   position: absolute;
   top: 85%;
-  left: 51%;
+  left: 49%;
   transform: translate(-50%, -50%);
-  width: 17%; 
-  max-width: 200px; 
-  min-width: 80px; 
+  width: 15%;
   height: auto;
+  max-width: 135px;
   cursor: pointer;
-  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  transition: transform 0.4s ease-in-out, box-shadow 0.4s ease-in-out;
 }
 
 .button:hover {
-  transform: translate(-50%, -50%) scale(1.08);
-  box-shadow: 0 8px 16px #838959;
-  border-radius: 0.5rem;
+  transform: translate(-50%, -55%) scale(1.05);
+  box-shadow: 0 8px 15px rgba(135, 141, 93, 0.7);
 }
 
 .bullet-container {
@@ -84,4 +96,28 @@
 .bullet.active {
   background-color: rgba(0, 0, 0, 0.8);
   transform: scale(1.2);
+}
+
+@media (max-width: 900px) {
+  .bullet-container {
+    display: none;
+  }
+  .button {
+    display: none;
+  }
+  .slide-container {
+    height: 50vh;
+  }
+  .slide {
+    height: 50vh;
+  }
+  .fixed-size-svg-container {
+    width: 100%;
+    height: 50vh;
+  }
+  .fixed-size-svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Container, Grid, Typography, CircularProgress } from "@mui/material";
 import CustomTooltip from "./CustomTooltip";
 import {
@@ -10,22 +10,83 @@ import {
 import Featured from "./images/Featured.svg";
 import "./css/styles.css";
 
+const primaryBooks = [
+  { title: "Le Petit Prince", author: "Antoine de Saint-Exupéry" },
+  { title: "The Hitch Hiker's Guide To The Galaxy", author: "Douglas Adams" },
+  { title: "City", author: "Clifford D. Simak" },
+  { title: "Perfume", author: "Patrick Süskind" },
+];
+
+const alternativeBooks = [
+  { title: "Anne's House Of Dreams", author: "Lucy Maud Montgomery" },
+];
+
 const FeaturedBooks = ({ handleAddToCart, handleImageClick }) => {
   const [featuredBooks, setFeaturedBooks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchFeaturedBooks = async () => {
+  const fetchAndMergeBooks = useCallback(async () => {
+    const dbBooks = await fetchBooksFromDB();
+    console.log("DB Books:", dbBooks);
+
+    const allBooksPromises = genres.map((genre) =>
+      fetchBooksFromAPI(genre.link)
+    );
+    const allBooks = await Promise.all(allBooksPromises);
+    const flattenedBooks = allBooks.flat();
+    console.log("API Books:", flattenedBooks);
+
+    const mergedBooks = await mergeBookData(dbBooks, flattenedBooks);
+    console.log("Merged Books:", mergedBooks);
+
+    return mergedBooks;
+  }, []);
+
+  const fetchFeaturedBooks = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
-      const dbBooks = await fetchBooksFromDB();
-      const allBooksPromises = genres.map((genre) =>
-        fetchBooksFromAPI(genre.link)
-      );
-      const allBooks = await Promise.all(allBooksPromises);
-      const flattenedBooks = allBooks.flat();
-      const mergedBooks = await mergeBookData(dbBooks, flattenedBooks);
-      setFeaturedBooks(mergedBooks.slice(0, 4)); // Get the last 4 books
+      let mergedBooks =
+        JSON.parse(localStorage.getItem("mergedBooks_featured")) || [];
+      if (mergedBooks.length === 0) {
+        mergedBooks = await fetchAndMergeBooks();
+        localStorage.setItem(
+          "mergedBooks_featured",
+          JSON.stringify(mergedBooks)
+        );
+      }
+
+      const findBook = (specificBook) => {
+        return mergedBooks.find(
+          (book) =>
+            book.title.toLowerCase() === specificBook.title.toLowerCase() &&
+            book.authors.some(
+              (author) =>
+                author.name.toLowerCase() === specificBook.author.toLowerCase()
+            )
+        );
+      };
+
+      let specificFeaturedBooks = primaryBooks
+        .map(findBook)
+        .filter((book) => book !== undefined);
+
+      for (
+        let i = 0;
+        specificFeaturedBooks.length < 4 && i < alternativeBooks.length;
+        i++
+      ) {
+        const alternativeBook = findBook(alternativeBooks[i]);
+        if (
+          alternativeBook &&
+          !specificFeaturedBooks.includes(alternativeBook)
+        ) {
+          specificFeaturedBooks.push(alternativeBook);
+        }
+      }
+
+      setFeaturedBooks(specificFeaturedBooks);
     } catch (error) {
       setError("Error fetching featured books");
       console.error(
@@ -36,11 +97,11 @@ const FeaturedBooks = ({ handleAddToCart, handleImageClick }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchAndMergeBooks]);
 
   useEffect(() => {
     fetchFeaturedBooks();
-  }, []);
+  }, [fetchFeaturedBooks]);
 
   return (
     <section id="featured-books" className="py-5 my-5">
@@ -60,7 +121,7 @@ const FeaturedBooks = ({ handleAddToCart, handleImageClick }) => {
         ) : (
           <Grid container spacing={4}>
             {featuredBooks.map((book) => (
-              <Grid item key={book.id} xs={12} sm={6} lg={3}>
+              <Grid item key={book.id} xs={12} sm={6} md={4} lg={3}>
                 <div
                   className="product-item"
                   style={{

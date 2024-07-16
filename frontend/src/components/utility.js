@@ -1,4 +1,5 @@
 import axios from "axios";
+import { v4 as uuidv4 } from "uuid"; // Import uuid package
 
 export const genres = [
   { title: "History", link: "history" },
@@ -41,7 +42,7 @@ export const fetchBooksFromDB = async () => {
   }
 };
 
-const isValidImage = (cover_id) => {
+export const isValidImage = (cover_id) => {
   return new Promise((resolve) => {
     const img = new Image();
     img.src = `https://covers.openlibrary.org/b/id/${cover_id}-L.jpg`;
@@ -51,25 +52,40 @@ const isValidImage = (cover_id) => {
 };
 
 export const mergeBookData = async (dbBooks, apiBooks) => {
+  const normalizeTitle = (title) =>
+    title
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s]/gi, "");
+
   const dbBooksMap = new Map();
-  dbBooks.forEach((book) => dbBooksMap.set(book.title.toLowerCase(), book));
+  dbBooks.forEach((book) => dbBooksMap.set(normalizeTitle(book.title), book));
+
+  console.log("DB Books Map:", dbBooksMap);
 
   const mergedBooksPromises = apiBooks.map(async (apiBook) => {
-    const dbBook = dbBooksMap.get(apiBook.title.toLowerCase());
+    const normalizedTitle = normalizeTitle(apiBook.title);
+    const dbBook = dbBooksMap.get(normalizedTitle);
+    console.log(`Checking API Book: ${apiBook.title}`, { apiBook, dbBook });
+
     if (dbBook && apiBook.cover_id) {
       const hasValidImage = await isValidImage(apiBook.cover_id);
       if (hasValidImage) {
-        return {
+        const mergedBook = {
           ...apiBook,
           price: dbBook.price,
           quantity: dbBook.quantity,
-          id: dbBook.id,
+          id: dbBook.id || uuidv4(), // Assign unique ID if not already present
         };
+        console.log("Merged Book:", mergedBook);
+        return mergedBook;
       }
     }
     return null;
   });
 
   const mergedBooks = await Promise.all(mergedBooksPromises);
+  console.log("Merged books after promises:", mergedBooks);
+
   return mergedBooks.filter((book) => book !== null);
 };

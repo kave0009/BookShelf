@@ -29,50 +29,49 @@ const slides = [
 
 const BillboardSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isMobileView, setIsMobileView] = useState(window.innerWidth < 900);
 
-  const goToNextSlide = () => {
-    setCurrentSlide((prevSlide) => (prevSlide + 1) % slides.length);
-  };
-
-  const goToPrevSlide = () => {
-    setCurrentSlide(
-      (prevSlide) => (prevSlide - 1 + slides.length) % slides.length
-    );
-  };
-
-  const goToSlide = (index) => {
-    setCurrentSlide(index);
+  const handleResize = () => {
+    setIsMobileView(window.innerWidth < 900);
   };
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      goToNextSlide();
-    }, 200000);
+    window.addEventListener("resize", handleResize);
 
-    return () => clearInterval(interval);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   return (
     <div className="sliders">
       <div className="slide-container">
-        {slides.map((slide, index) => (
-          <div
-            key={slide.id}
-            className={`slide ${index === currentSlide ? "active" : ""}`}
-          >
-            {slide.component}
+        {isMobileView ? (
+          <div className="slide active fixed-size-svg-container">
+            <BannerSVG1 className="fixed-size-svg" />
           </div>
-        ))}
+        ) : (
+          slides.map((slide, index) => (
+            <div
+              key={slide.id}
+              className={`slide ${index === currentSlide ? "active" : ""}`}
+            >
+              {slide.component}
+            </div>
+          ))
+        )}
       </div>
-      <div className="bullet-container">
-        {slides.map((_, index) => (
-          <div
-            key={index}
-            className={`bullet ${index === currentSlide ? "active" : ""}`}
-            onClick={() => goToSlide(index)}
-          ></div>
-        ))}
-      </div>
+      {!isMobileView && (
+        <div className="bullet-container">
+          {slides.map((_, index) => (
+            <div
+              key={index}
+              className={`bullet ${index === currentSlide ? "active" : ""}`}
+              onClick={() => setCurrentSlide(index)}
+            ></div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

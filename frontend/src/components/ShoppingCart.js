@@ -3,19 +3,20 @@ import {
   Container,
   Typography,
   Grid,
-  IconButton,
-  Button,
   CircularProgress,
+  Button,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import RemoveIcon from "@mui/icons-material/Remove";
-import DeleteIcon from "@mui/icons-material/Delete";
-import axios from "axios";
 import Checkout from "./Checkout";
+import {
+  fetchBooksFromAPI,
+  fetchBooksFromDB,
+  mergeBookData,
+  genres,
+} from "./utility";
 import "./css/styles.css";
 
 const ShoppingCart = ({
@@ -32,59 +33,81 @@ const ShoppingCart = ({
   const [error, setError] = useState(null);
   const [checkoutDialogOpen, setCheckoutDialogOpen] = useState(false);
 
-  const fetchSuggestions = useCallback(async () => {
-    const genres = ["fiction", "non-fiction", "science-fiction", "fantasy"];
-    setLoading(true);
-    setError(null);
-    try {
-      const promises = genres.map((genre) =>
-        axios.get(
-          `https://openlibrary.org/subjects/${encodeURIComponent(genre)}.json`
-        )
-      );
-      const results = await Promise.all(promises);
+  const fetchAndMergeBooks = useCallback(async () => {
+    const dbBooks = await fetchBooksFromDB();
+    console.log("DB Books:", dbBooks);
 
-      const books = results
-        .flatMap((result) => result.data.works)
-        .map((book) => ({
-          id: book.cover_edition_key || book.key,
-          title: book.title,
-          authors: book.authors || [],
-          cover_id: book.cover_id,
-          price: (Math.random() * 40 + 10).toFixed(2),
-          quantity: 100,
-        }));
+    const allBooksPromises = genres.map((genre) =>
+      fetchBooksFromAPI(genre.link)
+    );
+    const allBooks = await Promise.all(allBooksPromises);
+    const flattenedBooks = allBooks.flat();
+    console.log("API Books:", flattenedBooks);
 
-      const filteredBooks = books.filter(
-        (book) =>
-          !cartItems.some((cartItem) => cartItem.title === book.title) &&
-          !suggestions.some((suggestion) => suggestion.title === book.title)
-      );
+    const mergedBooks = await mergeBookData(dbBooks, flattenedBooks);
+    console.log("Merged Books:", mergedBooks);
 
-      const newSuggestions = filteredBooks.slice(0, 6);
-      setSuggestions(newSuggestions);
-    } catch (error) {
-      let errorMessage = "An error occurred while fetching suggestions.";
-      if (axios.isAxiosError(error)) {
-        if (error.response) {
-          errorMessage = `Error: ${error.response.status} - ${error.response.data.message}`;
-        } else if (error.request) {
-          errorMessage = "Error: No response received from the server.";
-        } else {
-          errorMessage = `Error: ${error.message}`;
+    return mergedBooks;
+  }, []);
+
+  const fetchSuggestions = useCallback(
+    async (newCartItem) => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        let mergedBooks = JSON.parse(localStorage.getItem("mergedBooks")) || [];
+        if (mergedBooks.length === 0) {
+          mergedBooks = await fetchAndMergeBooks();
+          localStorage.setItem("mergedBooks", JSON.stringify(mergedBooks));
         }
-      } else {
-        errorMessage = `Error: ${error.message}`;
+
+        let filteredBooks = mergedBooks.filter((book) => book.cover_id);
+
+        if (cartItems.length > 0) {
+          filteredBooks = filteredBooks.filter(
+            (book) => !cartItems.some((cartItem) => cartItem.id === book.id)
+          );
+        }
+
+        let newSuggestions = [];
+
+        if (newCartItem) {
+          newSuggestions = suggestions.filter(
+            (suggestion) => suggestion.id !== newCartItem.id
+          );
+          const newBook = filteredBooks.sort(() => 0.5 - Math.random())[0];
+          if (newBook) {
+            newSuggestions.push(newBook);
+          }
+        } else {
+          newSuggestions = filteredBooks
+            .sort(() => 0.5 - Math.random())
+            .slice(0, 6);
+        }
+
+        console.log("Suggestions:", newSuggestions);
+
+        localStorage.setItem("suggestions", JSON.stringify(newSuggestions));
+        setSuggestions(newSuggestions);
+      } catch (error) {
+        setError("Error fetching suggestions");
+        console.error("Error fetching suggestions:", error);
+      } finally {
+        setLoading(false);
       }
-      setError(errorMessage);
-      console.error("Error fetching suggestions:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [cartItems]);
+    },
+    [cartItems, fetchAndMergeBooks, suggestions]
+  );
 
   useEffect(() => {
-    fetchSuggestions();
+    const storedSuggestions =
+      JSON.parse(localStorage.getItem("suggestions")) || [];
+    if (storedSuggestions.length > 0) {
+      setSuggestions(storedSuggestions);
+    } else {
+      fetchSuggestions();
+    }
   }, [cartItems, fetchSuggestions]);
 
   const handleAddToCartAndUpdateSuggestions = (item) => {
@@ -93,9 +116,7 @@ const ShoppingCart = ({
       return;
     }
     handleAddToCart(item);
-    setTimeout(() => {
-      fetchSuggestions();
-    }, 0);
+    fetchSuggestions(item);
   };
 
   const totalPrice = cartItems
@@ -182,30 +203,30 @@ const ShoppingCart = ({
                           justifyContent: "center",
                         }}
                       >
-                        <IconButton
+                        <Button
                           onClick={() =>
                             updateCartItem(item.id, item.quantity - 1)
                           }
                           disabled={item.quantity === 1}
                         >
-                          <RemoveIcon />
-                        </IconButton>
+                          -
+                        </Button>
                         <Typography
                           variant="body2"
                           style={{ width: 30, textAlign: "center" }}
                         >
                           {item.quantity}
                         </Typography>
-                        <IconButton
+                        <Button
                           onClick={() =>
                             updateCartItem(item.id, item.quantity + 1)
                           }
                         >
-                          <AddIcon />
-                        </IconButton>
-                        <IconButton onClick={() => removeCartItem(item.id)}>
-                          <DeleteIcon />
-                        </IconButton>
+                          +
+                        </Button>
+                        <Button onClick={() => removeCartItem(item.id)}>
+                          x
+                        </Button>
                       </div>
                     </figcaption>
                   </div>

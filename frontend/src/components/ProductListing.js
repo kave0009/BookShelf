@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from "react";
-import axios from "axios";
 import { useParams } from "react-router-dom";
 import { Container, Grid, Typography, CircularProgress } from "@mui/material";
 import CustomTooltip from "./CustomTooltip";
@@ -22,20 +21,42 @@ const ProductListing = ({
   const [error, setError] = useState(null);
   const [selectedGenre, setSelectedGenre] = useState(genre || "history");
 
-  const fetchBooks = useCallback(async (genre) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const dbBooks = await fetchBooksFromDB();
-      const apiBooks = await fetchBooksFromAPI(genre);
-      const mergedBooks = await mergeBookData(dbBooks, apiBooks);
-      setBooks(mergedBooks);
-    } catch (error) {
-      setError(error.message);
-    } finally {
-      setLoading(false);
-    }
+  const fetchAndMergeBooks = useCallback(async (genre) => {
+    const dbBooks = await fetchBooksFromDB();
+    console.log("DB Books:", dbBooks);
+
+    const apiBooks = await fetchBooksFromAPI(genre);
+    console.log("API Books:", apiBooks);
+
+    const mergedBooks = await mergeBookData(dbBooks, apiBooks);
+    console.log("Merged Books:", mergedBooks);
+
+    return mergedBooks;
   }, []);
+
+  const fetchBooks = useCallback(
+    async (genre) => {
+      setLoading(true);
+      setError(null);
+      try {
+        let mergedBooks =
+          JSON.parse(localStorage.getItem(`mergedBooks_${genre}`)) || [];
+        if (mergedBooks.length === 0) {
+          mergedBooks = await fetchAndMergeBooks(genre);
+          localStorage.setItem(
+            `mergedBooks_${genre}`,
+            JSON.stringify(mergedBooks)
+          );
+        }
+        setBooks(mergedBooks);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [fetchAndMergeBooks]
+  );
 
   useEffect(() => {
     fetchBooks(selectedGenre);
