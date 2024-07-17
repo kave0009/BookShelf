@@ -11,6 +11,7 @@ import {
   DialogActions,
 } from "@mui/material";
 import Checkout from "./Checkout";
+import BookDialog from "./BookDialog";
 import {
   fetchBooksFromAPI,
   fetchBooksFromDB,
@@ -32,20 +33,19 @@ const ShoppingCart = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [checkoutDialogOpen, setCheckoutDialogOpen] = useState(false);
+  const [bookDialogOpen, setBookDialogOpen] = useState(false);
+  const [selectedBook, setSelectedBook] = useState(null);
 
   const fetchAndMergeBooks = useCallback(async () => {
     const dbBooks = await fetchBooksFromDB();
-    console.log("DB Books:", dbBooks);
 
     const allBooksPromises = genres.map((genre) =>
       fetchBooksFromAPI(genre.link)
     );
     const allBooks = await Promise.all(allBooksPromises);
     const flattenedBooks = allBooks.flat();
-    console.log("API Books:", flattenedBooks);
 
     const mergedBooks = await mergeBookData(dbBooks, flattenedBooks);
-    console.log("Merged Books:", mergedBooks);
 
     return mergedBooks;
   }, []);
@@ -86,13 +86,10 @@ const ShoppingCart = ({
             .slice(0, 6);
         }
 
-        console.log("Suggestions:", newSuggestions);
-
         localStorage.setItem("suggestions", JSON.stringify(newSuggestions));
         setSuggestions(newSuggestions);
       } catch (error) {
         setError("Error fetching suggestions");
-        console.error("Error fetching suggestions:", error);
       } finally {
         setLoading(false);
       }
@@ -112,11 +109,20 @@ const ShoppingCart = ({
 
   const handleAddToCartAndUpdateSuggestions = (item) => {
     if (typeof handleAddToCart !== "function") {
-      console.error("handleAddToCart is not a function");
       return;
     }
     handleAddToCart(item);
     fetchSuggestions(item);
+  };
+
+  const handleBookClick = (book) => {
+    setSelectedBook(book);
+    setBookDialogOpen(true);
+  };
+
+  const handleCloseBookDialog = () => {
+    setBookDialogOpen(false);
+    setSelectedBook(null);
   };
 
   const totalPrice = cartItems
@@ -260,7 +266,15 @@ const ShoppingCart = ({
             You might also like:
           </Typography>
           {loading ? (
-            <CircularProgress />
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <CircularProgress />
+            </div>
           ) : error ? (
             <div>Error fetching suggestions: {error}</div>
           ) : (
@@ -281,6 +295,7 @@ const ShoppingCart = ({
                         flexDirection: "column",
                         alignItems: "center",
                       }}
+                      onClick={() => handleBookClick(suggestion)}
                     >
                       <figure
                         className="product-style"
@@ -297,9 +312,10 @@ const ShoppingCart = ({
                           type="button"
                           className="add-to-cart"
                           data-product-tile="add-to-cart"
-                          onClick={() =>
-                            handleAddToCartAndUpdateSuggestions(suggestion)
-                          }
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddToCartAndUpdateSuggestions(suggestion);
+                          }}
                         >
                           Add to Cart
                         </button>
@@ -359,6 +375,13 @@ const ShoppingCart = ({
           </Button>
         </DialogActions>
       </Dialog>
+
+      <BookDialog
+        open={bookDialogOpen}
+        onClose={handleCloseBookDialog}
+        book={selectedBook}
+        handleAddToCart={handleAddToCartAndUpdateSuggestions}
+      />
     </Container>
   );
 };
