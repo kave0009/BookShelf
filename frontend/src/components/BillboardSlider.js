@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ReactComponent as BannerSVG1 } from "./images/banner1.svg";
+import BannerPNG1 from "./images/banner1.png";
 import BannerPNG2 from "./images/banner2.png";
 import BannerPNG3 from "./images/banner3.png";
 import ButtonSVG from "./images/Button.svg";
@@ -7,7 +7,12 @@ import { Link } from "react-router-dom";
 import "./css/slider.css";
 
 const slides = [
-  { id: 1, component: <BannerSVG1 className="full-width-svg" /> },
+  {
+    id: 1,
+    component: (
+      <img src={BannerPNG1} alt="Banner 1" className="full-width-img no-zoom" />
+    ),
+  }, // Added "no-zoom" class here
   {
     id: 2,
     component: (
@@ -47,8 +52,13 @@ const BillboardSlider = () => {
     <div className="sliders">
       <div className="slide-container">
         {isMobileView ? (
-          <div className="slide active fixed-size-svg-container">
-            <BannerSVG1 className="fixed-size-svg" />
+          <div className="slide active fixed-size-img-container">
+            <img
+              src={BannerPNG1}
+              alt="Banner 1"
+              className="fixed-size-img no-zoom"
+            />{" "}
+            {/* Added "no-zoom" class here */}
           </div>
         ) : (
           slides.map((slide, index) => (
