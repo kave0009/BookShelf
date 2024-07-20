@@ -124,6 +124,9 @@ const BookDialog = ({ open, onClose, book, handleAddToCart }) => {
                     <FavoriteBorderIcon />
                   )}
                 </IconButton>
+                <Typography variant="body2" color="text.secondary" ml={1}>
+                  {likes} {likes === 1 ? "like" : "likes"}
+                </Typography>
               </Box>
               {showComments && (
                 <Box mt={2}>

@@ -27,35 +27,32 @@ const FeaturedBooks = ({ handleAddToCart, handleImageClick }) => {
   const [error, setError] = useState(null);
 
   const fetchAndMergeBooks = useCallback(async () => {
-    const dbBooks = await fetchBooksFromDB();
-    console.log("DB Books:", dbBooks);
+    try {
+      const dbBooks = await fetchBooksFromDB();
+      console.log("DB Books:", dbBooks);
 
-    const allBooksPromises = genres.map((genre) =>
-      fetchBooksFromAPI(genre.link)
-    );
-    const allBooks = await Promise.all(allBooksPromises);
-    const flattenedBooks = allBooks.flat();
-    console.log("API Books:", flattenedBooks);
+      const allBooksPromises = genres.map((genre) =>
+        fetchBooksFromAPI(genre.link)
+      );
+      const allBooks = await Promise.all(allBooksPromises);
+      const flattenedBooks = allBooks.flat();
+      console.log("API Books:", flattenedBooks);
 
-    const mergedBooks = await mergeBookData(dbBooks, flattenedBooks);
-    console.log("Merged Books:", mergedBooks);
+      const mergedBooks = await mergeBookData(dbBooks, flattenedBooks);
+      console.log("Merged Books:", mergedBooks);
 
-    return mergedBooks;
+      return mergedBooks;
+    } catch (error) {
+      console.error("Error fetching and merging books:", error);
+      throw error;
+    }
   }, []);
 
   const fetchFeaturedBooks = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      let mergedBooks =
-        JSON.parse(localStorage.getItem("mergedBooks_featured")) || [];
-      if (mergedBooks.length === 0) {
-        mergedBooks = await fetchAndMergeBooks();
-        localStorage.setItem(
-          "mergedBooks_featured",
-          JSON.stringify(mergedBooks)
-        );
-      }
+      const mergedBooks = await fetchAndMergeBooks();
 
       const findBook = (specificBook) => {
         return mergedBooks.find(

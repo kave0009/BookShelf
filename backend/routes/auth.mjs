@@ -5,6 +5,11 @@ import { query } from "../db.mjs";
 
 const router = Router();
 
+const jwtSecret = process.env.JWT_SECRET;
+if (!jwtSecret) {
+  throw new Error("JWT secret key is not defined in environment variables");
+}
+
 router.post("/register", async (req, res) => {
   const {
     username,
@@ -79,7 +84,7 @@ router.post("/login", async (req, res) => {
       email: user.email,
     };
 
-    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+    const token = jwt.sign(payload, jwtSecret, {
       expiresIn: "1h",
     });
 

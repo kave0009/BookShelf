@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import BannerPNG1 from "./images/banner1.png";
 import BannerPNG2 from "./images/banner2.png";
 import BannerPNG3 from "./images/banner3.png";
@@ -12,7 +12,7 @@ const slides = [
     component: (
       <img src={BannerPNG1} alt="Banner 1" className="full-width-img no-zoom" />
     ),
-  }, // Added "no-zoom" class here
+  },
   {
     id: 2,
     component: (
@@ -35,18 +35,37 @@ const slides = [
 const BillboardSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isMobileView, setIsMobileView] = useState(window.innerWidth < 900);
+  const slideInterval = useRef(null);
 
   const handleResize = () => {
     setIsMobileView(window.innerWidth < 900);
   };
 
+  const nextSlide = () => {
+    setCurrentSlide((prevSlide) => (prevSlide + 1) % slides.length);
+  };
+
   useEffect(() => {
     window.addEventListener("resize", handleResize);
 
+    slideInterval.current = setInterval(nextSlide, 5000); // Change slide every 5 seconds
+
     return () => {
       window.removeEventListener("resize", handleResize);
+      clearInterval(slideInterval.current);
     };
   }, []);
+
+  useEffect(() => {
+    clearInterval(slideInterval.current);
+    slideInterval.current = setInterval(nextSlide, 5000); // Reset interval on slide change
+
+    return () => clearInterval(slideInterval.current);
+  }, [currentSlide]);
+
+  const handleBulletClick = (index) => {
+    setCurrentSlide(index);
+  };
 
   return (
     <div className="sliders">
@@ -57,8 +76,7 @@ const BillboardSlider = () => {
               src={BannerPNG1}
               alt="Banner 1"
               className="fixed-size-img no-zoom"
-            />{" "}
-            {/* Added "no-zoom" class here */}
+            />
           </div>
         ) : (
           slides.map((slide, index) => (
@@ -77,7 +95,7 @@ const BillboardSlider = () => {
             <div
               key={index}
               className={`bullet ${index === currentSlide ? "active" : ""}`}
-              onClick={() => setCurrentSlide(index)}
+              onClick={() => handleBulletClick(index)}
             ></div>
           ))}
         </div>

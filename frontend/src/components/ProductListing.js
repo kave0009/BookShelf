@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { Container, Grid, Typography, CircularProgress } from "@mui/material";
 import CustomTooltip from "./CustomTooltip";
 import {
-  genres,
+  genres, // Make sure genres is imported
   fetchBooksFromAPI,
   fetchBooksFromDB,
   mergeBookData,
@@ -39,15 +39,7 @@ const ProductListing = ({
       setLoading(true);
       setError(null);
       try {
-        let mergedBooks =
-          JSON.parse(localStorage.getItem(`mergedBooks_${genre}`)) || [];
-        if (mergedBooks.length === 0) {
-          mergedBooks = await fetchAndMergeBooks(genre);
-          localStorage.setItem(
-            `mergedBooks_${genre}`,
-            JSON.stringify(mergedBooks)
-          );
-        }
+        const mergedBooks = await fetchAndMergeBooks(genre);
         setBooks(mergedBooks);
       } catch (error) {
         setError(error.message);

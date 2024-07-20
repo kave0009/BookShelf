@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import path from "path";
 import authRoutes from "./routes/auth.mjs";
 import productRoutes from "./routes/products.mjs";
 import cartRoutes from "./routes/cart.mjs";
@@ -64,10 +65,15 @@ app.get("/", (req, res) => {
   res.send("E-commerce backend is running");
 });
 
-app.listen(PORT, (err) => {
-  if (err) {
-    console.error("Failed to start server:", err);
-  } else {
-    console.log(`Server is running on port ${PORT}`);
-  }
-});
+const startBackend = () => {
+  app.listen(PORT, (err) => {
+    if (err) {
+      console.error("Failed to start server:", err);
+      process.exit(1);
+    } else {
+      console.log(`Server is running on port ${PORT}`);
+    }
+  });
+};
+
+startBackend();
