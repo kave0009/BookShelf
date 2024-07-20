@@ -2,9 +2,10 @@
   "name": "root",
   "version": "0.1.0",
   "scripts": {
-    "build:frontend": "cd frontend && npm install && npm run build",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install && cd ..",
+    "build:frontend": "cd frontend && npm run build",
     "start:frontend": "cd frontend && npm start",
-    "start:backend": "cd backend && npm install && nodemon server.mjs",
+    "start:backend": "cd backend && nodemon server.mjs",
     "start:prod": "npm-run-all build:frontend serve:frontend start:backend",
     "serve:frontend": "cd frontend && npx serve -s build",
     "start": "npm-run-all --parallel start:backend start:frontend"

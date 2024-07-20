@@ -13,4 +13,5 @@ Start the Application in Development Mode
 This command will start both the frontend
 and backend server:
 
+npm run install:all
 npm start
